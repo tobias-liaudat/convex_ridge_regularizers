@@ -7,7 +7,7 @@ sys.path.append('../')
 from models.convex_ridge_regularizer import ConvexRidgeRegularizer
 from pathlib import Path
 
-def load_model(name, device='cuda:0', epoch=None):
+def load_model(name, device='cuda:0', epoch=None, gpu=True):
     # folder
     directory = f'./trained_models/{name}/'
     directory_checkpoints = f'{directory}checkpoints/'
@@ -25,7 +25,10 @@ def load_model(name, device='cuda:0', epoch=None):
     # build model
     model, _ = build_model(config)
 
-    checkpoint = torch.load(checkpoint_path, map_location={'cuda:0':device,'cuda:1':device,'cuda:2':device,'cuda:3':device})
+    if gpu:
+        checkpoint = torch.load(checkpoint_path, map_location={'cuda:0':device,'cuda:1':device,'cuda:2':device,'cuda:3':device})
+    else:
+        checkpoint = torch.load(checkpoint_path, map_location=torch.device('cpu'))
 
     model.to(device)
     model.load_state_dict(checkpoint['state_dict'])
