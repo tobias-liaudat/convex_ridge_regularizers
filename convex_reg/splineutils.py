@@ -1,5 +1,5 @@
 import json
-from models.linear_spline import LinearSpline
+from convex_reg.linear_spline import LinearSpline
 
 def get_spline_coefficients(model):
     coeffs_list = []

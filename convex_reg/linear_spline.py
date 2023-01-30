@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from abc import ABC, abstractproperty, abstractmethod
-from models.quadratic_spline import Quadratic_Spline_Func
+from convex_reg.quadratic_spline import Quadratic_Spline_Func
 
 
 def monotonic_clipping(cs):

@@ -3,8 +3,8 @@ import os
 import glob
 import sys
 import torch
-sys.path.append('../')
-from models.convex_ridge_regularizer import ConvexRidgeRegularizer
+# sys.path.append('../')
+from convex_reg.convex_ridge_regularizer import ConvexRidgeRegularizer
 from pathlib import Path
 
 def load_model(name, device='cuda:0', epoch=None, gpu=True):
