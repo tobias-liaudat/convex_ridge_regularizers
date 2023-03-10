@@ -7,9 +7,9 @@ import torch
 from convex_reg.convex_ridge_regularizer import ConvexRidgeRegularizer
 from pathlib import Path
 
-def load_model(name, device='cuda:0', epoch=None, gpu=True):
+def load_model(directory, device='cuda:0', epoch=None, gpu=True):
     # folder
-    directory = f'./trained_models/{name}/'
+    # directory = f'./trained_models/{name}/'
     directory_checkpoints = f'{directory}checkpoints/'
 
     # retrieve last checkpoint if epich not specified
