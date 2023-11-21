@@ -10,7 +10,7 @@ from tqdm import tqdm
 from models.convex_ridge_regularizer import ConvexRidgeRegularizer
 
 
-def load_my_model(directory, device='cuda:0', epoch=None, device_type='cpu'):
+def load_model(directory, device='cuda:0', epoch=None, device_type='cpu'):
     # folder
     # directory = f'./trained_models/{name}/'
     directory_checkpoints = f'{directory}checkpoints/'
@@ -42,7 +42,7 @@ def load_my_model(directory, device='cuda:0', epoch=None, device_type='cpu'):
     return(model)
 
 
-def load_model(name, device='cuda:0', epoch=None):
+def load_model_original(name, device='cuda:0', epoch=None):
     # folder
     directory = f'{os.path.abspath(os.path.dirname(__file__))}/../trained_models/{name}/'
     directory_checkpoints = f'{directory}checkpoints/'
