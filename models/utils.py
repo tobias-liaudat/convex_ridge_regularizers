@@ -10,7 +10,6 @@ from torchmetrics.functional import structural_similarity_index_measure as ssim
 
 
 from tqdm import tqdm
-sys.path.append('../')
 from models.convex_ridge_regularizer import ConvexRidgeRegularizer
 from pathlib import Path
 
