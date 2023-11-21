@@ -37,7 +37,7 @@ setup(
                  'Intended Audience :: Science/Research'
                  ],
     name = "models",
-    version = "0.0.1",
+    version = "1.0.0",
     prefix='.',
     url='https://github.com/axgoujon/convex_ridge_regularizers',
     author='Alexis Goujon et al.',
