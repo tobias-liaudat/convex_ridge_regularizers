@@ -1,17 +1,45 @@
 import json
 import os
 import glob
-import sys
 import math
-import numpy as np
 import torch
 from torchmetrics.functional import peak_signal_noise_ratio as psnr
 from torchmetrics.functional import structural_similarity_index_measure as ssim
 
-
 from tqdm import tqdm
 from models.convex_ridge_regularizer import ConvexRidgeRegularizer
-from pathlib import Path
+
+
+def load_my_model(directory, device='cuda:0', epoch=None, device_type='cpu'):
+    # folder
+    # directory = f'./trained_models/{name}/'
+    directory_checkpoints = f'{directory}checkpoints/'
+
+    # retrieve last checkpoint if epich not specified
+    if epoch is None:
+        files = glob.glob(f'{directory}checkpoints/*.pth', recursive=False)
+        epochs = map(lambda x: int(x.split("/")[-1].split('.pth')[0].split('_')[1]), files)
+        epoch = max(epochs)
+        print(f"--- loading checkpoint from epoch {epoch} ---")
+
+    checkpoint_path = f'{directory_checkpoints}checkpoint_{epoch}.pth'
+    # config file
+    config = json.load(open(f'{directory}config.json'))
+    # build model
+    model, _ = build_model(config)
+
+    if device_type == 'gpu':
+        checkpoint = torch.load(checkpoint_path, map_location={'cuda:0':device,'cuda:1':device,'cuda:2':device,'cuda:3':device})
+    elif device_type == 'mps':
+        checkpoint = torch.load(checkpoint_path, map_location=torch.device('mps'))
+    elif device_type == 'cpu':
+        checkpoint = torch.load(checkpoint_path, map_location=torch.device('cpu'))
+
+    model.to(device)
+    model.load_state_dict(checkpoint['state_dict'])
+    model.eval()
+
+    return(model)
 
 
 def load_model(name, device='cuda:0', epoch=None):
