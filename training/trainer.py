@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import DataLoader
-from data import dataset
+# from data import dataset
 import os, sys
 import json
 from torch.utils import tensorboard
@@ -10,25 +10,56 @@ from torchmetrics.functional import peak_signal_noise_ratio as psnr
 
 ssim = StructuralSimilarityIndexMeasure()
 
+sys.path.append('./../')
+sys.path.append('/disk/xray0/tl3/project-nested-diffusion/convex_ridge_regularizers/')
+# sys.path.insert(0,"../")
 
-sys.path.insert(0,"../")
 from models.utils import build_model, tStepDenoiser
+from torch.utils.data import Dataset
+import numpy as np
+import h5py
+import random
+
+random.seed(42)
+
+class H5PY(Dataset):
+    def __init__(self, data_file, randomize=True):
+        super(Dataset, self).__init__()
+        self.data_file = data_file
+        self.dataset = None
+        with h5py.File(self.data_file, 'r') as file:
+            self.keys_list = list(file.keys())
+            if randomize:
+                random.shuffle(self.keys_list)
+
+
+    def __len__(self):
+        return len(self.keys_list)
+
+
+    def __getitem__(self, idx):
+        if self.dataset is None:
+            self.dataset = h5py.File(self.data_file, 'r')
+        data = torch.Tensor(np.array(self.dataset[self.keys_list[idx]]))
+        return data
+    
 
 class Trainer:
     """
     """
-    def __init__(self, config, seed, device):
+    def __init__(self, config, seed, device, patch_size=40):
         global ssim
         ssim = ssim.to(device)
         self.config = config
         self.seed = seed
         self.device = device
         self.sigma = config['sigma']
+        self.patch_size = patch_size
 
 
         # datasets and dataloaders
-        train_dataset = dataset.H5PY(config['train_dataloader']['train_data_file'])
-        val_dataset = dataset.H5PY(config['val_dataloader']['val_data_file'])
+        train_dataset = H5PY(config['train_dataloader']['train_data_file'])
+        val_dataset = H5PY(config['val_dataloader']['val_data_file'])
         self.batch_size = config["train_dataloader"]["batch_size"]
 
         self.train_dataloader = DataLoader(train_dataset, batch_size=config["train_dataloader"]["batch_size"], shuffle=config["train_dataloader"]["shuffle"], num_workers=config["train_dataloader"]["num_workers"], drop_last=True)
@@ -156,7 +187,7 @@ class Trainer:
             output = self.denoise(noisy_data, t_steps=self.config["training_options"]["t_steps"])
 
             # data fidelity normalized
-            data_fidelity = (self.criterion(output, data))/(data.shape[0]) * 40 * 40 / data.shape[2] / data.shape[3]
+            data_fidelity = (self.criterion(output, data))/(data.shape[0]) * self.patch_size * self.patch_size / data.shape[2] / data.shape[3]
 
             # regularization of the splines to promote fewer breakpoints
             if self.config['training_options']['tv2_lmbda'] > 0 and self.model.use_splines:
